@@ -37,10 +37,32 @@ jobs:
         pip install openpyxl>=3.0.0
         pip install buildozer==1.4.0
         pip install cython==0.29.33
+
+    - name: Install Android SDK and Build Tools
+      run: |
+        # Set Android home directory
+        export ANDROID_HOME=$HOME/android-sdk
+        mkdir -p $ANDROID_HOME
+        
+        # Download Android Command Line Tools (latest)
+        wget https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip -O cmdline-tools.zip
+        unzip cmdline-tools.zip -d $ANDROID_HOME
+        mv $ANDROID_HOME/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
+        
+        # Add Android tools to PATH
+        export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/build-tools/33.0.2:$PATH
+        
+        # Accept SDK licenses automatically
+        yes | sdkmanager --licenses
+        
+        # Install required Build Tools (matches your target API 33)
+        sdkmanager "build-tools;33.0.2" "platforms;android-33" "platform-tools"
         
     - name: Build APK with Buildozer
       run: |
         export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+        export ANDROID_HOME=$HOME/android-sdk  # Match the path from Step 1
+        export PATH=$ANDROID_HOME/build-tools/33.0.2:$PATH  # Ensure aidl is in PATH
         cd android_app/  # Navigate to the directory containing buildozer.spec
         buildozer android debug
         
