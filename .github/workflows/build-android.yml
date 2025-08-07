@@ -41,14 +41,14 @@ jobs:
     - name: Build APK with Buildozer
       run: |
         export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-        cd card_game/android_app/  # Navigate to the directory containing buildozer.spec
+        cd card-game-generator-android/android_app/  # Navigate to the directory containing buildozer.spec
         buildozer android debug
         
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
         name: android-apk
-        path: card_game/android_app/bin/*.apk 
+        path: card-game-generator-android/android_app/bin/*.apk 
         
     - name: List generated files
       run: |
