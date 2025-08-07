@@ -40,23 +40,26 @@ jobs:
 
     - name: Install Android SDK and Build Tools
       run: |
-        # Set Android home directory
         export ANDROID_HOME=$HOME/android-sdk
-        mkdir -p $ANDROID_HOME
+        mkdir -p $ANDROID_HOME/cmdline-tools/latest  # Create target directory first
+        mkdir -p $ANDROID_HOME/temp  # Temporary folder for unzipping
         
-        # Download Android Command Line Tools (latest)
+        # Download and unzip command line tools to temp folder
         wget https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip -O cmdline-tools.zip
-        unzip cmdline-tools.zip -d $ANDROID_HOME
-        mv $ANDROID_HOME/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
+        unzip cmdline-tools.zip -d $ANDROID_HOME/temp
+        
+        # Move contents (not the folder itself) to the "latest" directory
+        mv $ANDROID_HOME/temp/cmdline-tools/* $ANDROID_HOME/cmdline-tools/latest/
+        
+        # Clean up temporary files
+        rm -rf $ANDROID_HOME/temp cmdline-tools.zip
         
         # Add Android tools to PATH
         export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/build-tools/33.0.2:$PATH
         
-        # Accept SDK licenses automatically
+        # Accept SDK licenses and install required tools
         yes | sdkmanager --licenses
-        
-        # Install required Build Tools (matches your target API 33)
-        sdkmanager "build-tools;33.0.2" "platforms;android-33" "platform-tools"
+        sdkmanager "build-tools;33.0.2" "platforms;android-33" "platform-tools"    
         
     - name: Build APK with Buildozer
       run: |
